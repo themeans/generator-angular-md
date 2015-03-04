@@ -1,0 +1,10 @@
+
+  .config(function($stateProvider, $urlRouterProvider, STATES) {
+
+    angular.forEach(STATES, function (value, key){
+      $stateProvider.state(key, value.stateProviderConfig);
+    });
+
+    // if none of the above states are matched, use this as the fallback
+    $urlRouterProvider.otherwise('/dashboard');
+  })

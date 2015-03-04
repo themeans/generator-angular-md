@@ -1,0 +1,42 @@
+<div layout="column" style="position:absolute;height:100%;width:100%;">
+  <md-content style="height:90%" class="md-padding">
+    <md-list>
+      <md-divider></md-divider>
+      <md-item
+        ng-repeat="message in messages track by $index">
+        <md-item-content style="padding: 10px;">
+          <div class="md-tile-left">
+            <h4>{{message.sender.profile.fullName || message.sender.profile.businessName || 'No Name Available'}}</h4>
+            <p>{{message.body}}</p>
+          </div>
+        </md-item-content>
+        <md-divider></md-divider>
+      </md-item>
+    </md-list>
+  </md-content>
+
+  <md-progress-linear
+    md-mode="indeterminate"
+    style="margin-bottom: 20px;"
+    ng-show="showLoading">
+  </md-progress-linear>
+  <div layout="row" layout-align="center end">
+    <div flex="90" style="margin-left: 29px;background-color:white;">
+      <md-input-container>
+        <label>Reply: </label>
+        <textarea
+          style="background-color: white;"
+          ng-model="message.body"
+          md-maxlength="250">
+        </textarea>
+      </md-input-container>
+    </div>
+    <div flex="10" layout="row" layout-align="center center" style="min-height: 102px;">
+      <md-button
+        class="md-raised md-primary md-default-theme"
+        ng-click="addMessageToThread($event)">
+          Send
+      </md-button>
+    </div>
+  </div>
+</div>

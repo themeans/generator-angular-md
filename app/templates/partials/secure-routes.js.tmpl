@@ -1,0 +1,115 @@
+
+  .run(function ( $rootScope, Parse, STATES, $timeout, CL, $mdDialog, tmAccounts, $state, tmLocalStorage ) {
+
+    ////// Query Parse for User roles and update the localStorage cache on run.
+    if ( Parse.User.current() )
+    {
+      tmAccounts
+      .getUserRoles(Parse.User.current())
+      .then(function (roles){
+        // Fail safe, user accounts somehow has lost its role relations.
+        if (!roles)
+        {
+          fail('Please try again, or contact system admin');
+          return;
+        }
+
+      },function (err){
+        // deferred reject; Parse.Role Query error
+        fail(err.message);
+      });
+    }
+
+    function fail(errMsg) {
+      var alert = $mdDialog.confirm()
+      .title('Something went wrong!')
+      .content(errMsg)
+      .ok('Close');
+
+      $mdDialog.show(alert).then(function() {
+        Parse.User.logOut();
+        $state.go('login');
+      });
+    }
+    ////////////////////////
+
+    $rootScope.$on('$stateChangeStart',
+      function(event, toState, toParams, fromState, fromParams){
+
+        var User = Parse.User.current();
+
+        // If no current user, only states with 'public' access can be accessed
+        if (!User)
+        {
+          stateAuth(['public']);
+        }
+
+        // Get roles from cache
+        if (User)
+        {
+          var userRoles = tmLocalStorage.getObject(User.id + '-roles', []);
+
+          if (!userRoles.length)
+          {
+            var confirm = $mdDialog.confirm()
+            .title('Something went wrong!')
+            .content('Please try again, or contact system admin')
+            .ok('Close');
+
+            $mdDialog.show(confirm).then(function() {
+              Parse.User.logOut();
+              $state.go('login');
+            });
+          }
+          else
+          {
+            stateAuth(userRoles);
+          }
+        }
+
+        function stateAuth(userRoles) {
+
+          var allowedRoles = STATES[toState.name].accessControl.allow;
+
+          function checkAccess(){
+            var concatArray = userRoles.concat(allowedRoles).sort();
+
+            for (var i = 1; i < concatArray.length; i++)
+            {
+              // checks for duplicates - if so, access is granted
+              if (concatArray[i - 1] === concatArray[i])
+              {
+                return;
+              }
+              else if (i === concatArray.length - 1)
+              {
+                redirect();
+              }
+            }
+          }
+          checkAccess();
+        }
+
+        function redirect() {
+          // Wrapped in a timeout to fix angular digest issue when changing state like this.
+          if (fromState.name !== '')
+          {
+            $timeout(function (){
+              $state.go(fromState.name);
+            }, 0);
+          }
+          else if (!User && fromState.name === '')
+          {
+            $timeout(function (){
+              $state.go('login');
+            }, 0);
+          }
+          else if (User && fromState.name === '')
+          {
+            $timeout(function (){
+              $state.go('app.dashboard');
+            }, 0);
+          }
+        }
+      });
+  })

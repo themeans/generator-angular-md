@@ -1,0 +1,26 @@
+<section layout="column">
+  <md-content md-scroll-y flex class="md-padding">
+    <md-list>
+      <md-item ng-if="!threads.length">
+        <md-item-content class="md-padding">
+          You have no messages
+        </md-item-content>
+      </md-item>
+      <div ng-if="threads.length">
+        <md-divider></md-divider>
+      </div>
+      <md-item
+        style="cursor: pointer;"
+        ng-repeat="thread in threads"
+        ng-click="openThread(thread)">
+        <md-item-content style="padding: 20px">
+          <span ng-repeat="recipient in thread.recipients">
+            {{recipient.profile.fullName || recipient.profile.businessName}}
+          </span>
+        </md-item-content>
+        <md-divider></md-divider>
+      </md-item>
+    </md-list>
+  </md-content>
+</div>
+

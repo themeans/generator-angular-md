@@ -1,0 +1,34 @@
+<section layout="column">
+  <md-content md-scroll-y flex class="md-padding">
+    <md-progress-linear
+      md-mode="indeterminate"
+      style="margin-bottom: 20px;"
+      ng-show="showLoading">
+    </md-progress-linear>
+
+    <form name="userProfileForm" ng-submit="updateSettings()">
+      <md-input-container>
+        <label>Full Name</label>
+        <input type="text" ng-model="profile.fullName" required>
+      </md-input-container>
+      <md-input-container>
+        <label>Location</label>
+        <input type="text" ng-model="profile.location" required>
+      </md-input-container>
+      <md-input-container>
+        <label>About Me</label>
+        <textarea ng-model="profile.aboutMe"></textarea>
+      </md-input-container>
+      <md-input-container>
+        <label>Education</label>
+        <textarea ng-model="profile.education"></textarea>
+      </md-input-container>
+      <md-input-container>
+        <label>Experience</label>
+        <textarea ng-model="profile.experience"></textarea>
+      </md-input-container>
+      <md-button class="md-raised md-primary" type="submit">Submit!</md-button>
+    </form>
+
+  </md-content>
+</section>

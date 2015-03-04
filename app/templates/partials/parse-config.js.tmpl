@@ -1,0 +1,10 @@
+
+  .config(['ParseProvider',
+    function (Parse) {
+      Parse.configure({
+        applicationId: '<%= parseApplicationId %>',
+        javaScriptKey: '<%= parseJavaScriptKey %>',
+        clientKey: '<%= parseClientKey %>',
+        deps: ['$q', '$window']
+      });
+  }])

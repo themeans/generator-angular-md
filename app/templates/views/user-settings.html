@@ -1,0 +1,18 @@
+<section layout="column">
+  <md-content md-scroll-y flex class="md-padding">
+    <md-progress-linear
+      md-mode="indeterminate"
+      style="margin-bottom: 20px;"
+      ng-show="showLoading">
+    </md-progress-linear>
+
+    <form name="userProfileForm" ng-submit="updateSettings()">
+      <md-input-container>
+        <label>Notification Frequency</label>
+        <input type="text" ng-model="settings.notificationFrequency" required>
+      </md-input-container>
+      <md-button class="md-raised md-primary" type="submit">Submit!</md-button>
+    </form>
+
+  </md-content>
+</section>

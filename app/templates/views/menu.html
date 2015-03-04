@@ -1,0 +1,73 @@
+<md-sidenav layout="column"
+            style="overflow: hidden; display: flex;"
+            class="site-sidenav md-sidenav-left md-whiteframe-z2"
+            md-component-id="left"
+            md-is-locked-open="$media('gt-sm')">
+
+  <md-toolbar>
+    <h1 class="md-toolbar-tools">
+      <a href="#/" layout="row" flex>
+        <div style="line-height:40px; text-indent: 15px;"><%= appName %></div>
+      </a>
+    </h1>
+  </md-toolbar>
+
+  <md-content flex style="overflow: auto;">
+    <div ng-repeat="section in menu.sections">
+
+      <div ng-show="menu.visible(section)">
+        <md-button flex layout-fill
+          style="text-align: left;"
+          class="menu-item menu-title md-menu-item md-primary"
+          ng-click="menu.selectSection(section)"
+          md-highlight="menu.isSectionSelected(section)"
+          md-ink-ripple="#bbb">
+          <h4>{{section.name}}</h4>
+        </md-button>
+
+        <md-item layout="row"
+          style="list-style: none;"
+          ng-repeat="page in section.pages">
+          <md-button flex layout-fill
+            ng-show="menu.visible(page)"
+            style="text-decoration: none; text-align: left; padding-left: 25px;"
+            class="md-primary md-default-theme menu-item menu-title"
+            ng-show="menu.isSectionSelected(section)"
+            ng-click="menu.selectPage(page)"
+            md-ink-ripple="#bbb">
+            <span
+              style="padding: 10px;"
+              class="menu-item menu-title menu-sub-item md-menu-item"
+              ng-class="{ 'active': menu.isPageSelected(page) }"
+              ng-bind="page.name"></span>
+          </md-button>
+        </md-item>
+      </div>
+
+    </div>
+  </md-content>
+</md-sidenav>
+
+<div layout="column" 
+  layout-fill 
+  tabIndex="-1" 
+  role="main">
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <span ng-bind="menu.currentSectionOrPage().name"></span>
+      <% if(accounts) { %>
+      <md-button
+        style="width:15%;position:absolute;right:15px;top:16px;color:white;"
+        class="md-raised md-primary md-default-theme"
+        ng-click="logOutOnClick()">
+        Logout
+      </md-button>
+      <% } %>
+    </div>
+  </md-toolbar>
+
+  <md-content ui-view="menuContent"
+    md-scroll-y flex>
+  </md-content>
+
+</div> <!-- end main div -->
