@@ -4,15 +4,17 @@
     ////// Query Parse for User roles and update the localStorage cache on run.
     if ( Parse.User.current() )
     {
+      // TODO: this should also be run after login
       tmAccounts
       .getUserRoles(Parse.User.current())
       .then(function (roles){
-        // Fail safe, user accounts somehow has lost its role relations.
+        /*
         if (!roles)
         {
           fail('Please try again, or contact system admin');
           return;
         }
+        */
 
       },function (err){
         // deferred reject; Parse.Role Query error
@@ -51,6 +53,8 @@
 
           if (!userRoles.length)
           {
+            stateAuth(['public']);
+            /*
             var confirm = $mdDialog.confirm()
             .title('Something went wrong!')
             .content('Please try again, or contact system admin')
@@ -60,6 +64,7 @@
               Parse.User.logOut();
               $state.go('login');
             });
+            */
           }
           else
           {
