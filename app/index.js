@@ -110,7 +110,7 @@ module.exports = yeoman.generators.Base.extend({
     this.pkg = require('../package.json');
     this.appJsPath   = 'app/scripts/app.js';
     this.appJsContent = this.readFileAsString(this.appJsPath);
-    
+
     this.indexPath = 'app/index.html';
     this.indexHtml = this.readFileAsString(this.templatePath('index.html'));
     this.templateFiles = [];
@@ -143,7 +143,7 @@ module.exports = yeoman.generators.Base.extend({
           return true;
         }
       }
-      
+
       return false;
     }
 
@@ -294,6 +294,7 @@ module.exports = yeoman.generators.Base.extend({
         'controllers/dashboard.js',
         'services/menu.js',
         'services/states.js',
+        'services/cachekeys.js',
         'views/menu.html',
         'views/dashboard.html',
       ]);

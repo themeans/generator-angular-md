@@ -5,11 +5,15 @@
  * @name <%= appName %>:LoginCtrl
  * @description
  * # LoginCtrl
- * Controller of the creemWebApp
+ * Controller of the <%= appName %>
  */
 angular.module('<%= appName %>')
-  .controller('LoginCtrl', function ($scope, Parse, $state, tmAccounts, $mdDialog) {
-    
+  <% if (accounts) { %>
+  .controller('LoginCtrl', function ($scope, Parse, $state, tmAccounts, $mdDialog, tmLocalStorage) {
+  <% } else { %>
+  .controller('LoginCtrl', function ($scope, Parse, $state, $mdDialog) {
+  <% } %>
+
     // md-parse-login directive configurations
     $scope.mdToolbarClass = 'md-primary md-default-theme';
     $scope.mdToolbarToolsClass= 'md-toolbar-tools';
@@ -41,35 +45,38 @@ angular.module('<%= appName %>')
       role: 0
     };
 
-    $scope.onLoginSuccess = function(user){
+    $scope.onLoginSuccess = function(user, isNewUser) {
+      <% if (accounts) { %>
       ////// Query Parse for User roles and save to localStorage on login.
       tmAccounts
       .getUserRoles(user)
-      .then(function (roles){
-        // Fail safe, problems with cloud-code setting role relations to user on signUp.
-        if (!roles)
-        {
-          fail({ message: 'Please try again, or contact system admin' });
-          return;
+      .then(function (){
+        if (!isNewUser) {
+          // Existing user, return loginCompleted.
+          return loginComplete();
         }
-        $state.go('app.dashboard');
+        // Run code here for new user on login success.//
+        /////////////////////////////////////////////////
+        loginComplete();
 
-      },function (err){
-        // deferred reject; Parse.Role Query error
-        fail(err.message);
-      });
-    };
-
-    function fail(err){
-      var alert = $mdDialog.confirm()
-      .title('Something went wrong!')
-      .content(err.message)
-      .ok('Close');
-
-      $mdDialog.show(alert).then(function() {
+      }, function() {
+        tmLocalStorage.clear();
         Parse.User.logOut();
         $state.go('login');
+        $mdDialog.show(
+          $mdDialog.alert()
+          .title('You account is missing or something is wrong with authorisation.')
+          .content('Please try loggin in again or contacting support.')
+          .ok('Close')
+        );
       });
+      <% } else { %>
+        loginComplete();
+      <% } %>
+    };
+
+    function loginComplete(){
+      $state.go('app.dashboard');
     }
 
   });

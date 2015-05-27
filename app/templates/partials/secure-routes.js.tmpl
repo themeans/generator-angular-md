@@ -1,70 +1,61 @@
+  .run(function ( $rootScope, $mdMedia, Parse, STATES, $timeout, $mdDialog, tmAccounts, $state, tmLocalStorage, CACHEKEYS, $log ) {
 
-  .run(function ( $rootScope, Parse, STATES, $timeout, CL, $mdDialog, tmAccounts, $state, tmLocalStorage ) {
+    var user = Parse.User.current();
 
-    ////// Query Parse for User roles and update the localStorage cache on run.
-    if ( Parse.User.current() )
-    {
-      // TODO: this should also be run after login
+    if (user) {
       tmAccounts
-      .getUserRoles(Parse.User.current())
-      .then(function (roles){
-        /*
-        if (!roles)
-        {
-          fail('Please try again, or contact system admin');
-          return;
-        }
-        */
-
-      },function (err){
-        // deferred reject; Parse.Role Query error
-        fail(err.message);
-      });
-    }
-
-    function fail(errMsg) {
-      var alert = $mdDialog.confirm()
-      .title('Something went wrong!')
-      .content(errMsg)
-      .ok('Close');
-
-      $mdDialog.show(alert).then(function() {
+      .getUserRoles(user)
+      .then(function () {
+        // success
+      }, function () {
+        tmLocalStorage.clear();
         Parse.User.logOut();
         $state.go('login');
+        $mdDialog.show(
+          $mdDialog.alert()
+            .title('You account is missing or something is wrong with authorisation.')
+            .content('Please try loggin in again or contacting support.')
+            .ok('Close')
+        );
       });
     }
+    else {
+      $state.go('login');
+    }
+
     ////////////////////////
 
     $rootScope.$on('$stateChangeStart',
       function(event, toState, toParams, fromState, fromParams){
-
-        var User = Parse.User.current();
-
+        //////////////////////// ACCESS CONTROL ////////////////////////////
+        var user = Parse.User.current(), userRoles, confirmAlert;
         // If no current user, only states with 'public' access can be accessed
-        if (!User)
+        if (!user)
         {
           stateAuth(['public']);
         }
 
         // Get roles from cache
-        if (User)
+        if (user)
         {
-          var userRoles = tmLocalStorage.getObject(User.id + '-roles', []);
+          userRoles = tmLocalStorage.getObject(CACHEKEYS.user.roles.key, []);
 
+          // if cache roles have gone missing or it is referencing the wrong cache key.
           if (!userRoles.length)
           {
-            stateAuth(['public']);
-            /*
-            var confirm = $mdDialog.confirm()
-            .title('Something went wrong!')
-            .content('Please try again, or contact system admin')
-            .ok('Close');
+            $log.error('Cached User roles are returning an empty array. Check localStorage, and application cacheKey references are correct.');
 
-            $mdDialog.show(confirm).then(function() {
+            confirmAlert = $mdDialog.confirm()
+              .title('Something went wrong!')
+              .content('Please try logging in again, or contact support if the problem persists.')
+              .ok('Close');
+
+            $mdDialog.show(confirmAlert)
+            .then(function() {
+              tmLocalStorage.clear();
               Parse.User.logOut();
               $state.go('login');
             });
-            */
           }
           else
           {
@@ -73,7 +64,6 @@
         }
 
         function stateAuth(userRoles) {
-
           var allowedRoles = STATES[toState.name].accessControl.allow;
 
           function checkAccess(){
@@ -103,16 +93,16 @@
               $state.go(fromState.name);
             }, 0);
           }
-          else if (!User && fromState.name === '')
+          else if (!user && fromState.name === '')
           {
             $timeout(function (){
               $state.go('login');
             }, 0);
           }
-          else if (User && fromState.name === '')
+          else if (user && fromState.name === '')
           {
             $timeout(function (){
-              $state.go('app.dashboard');
+              $state.go('app.activity-feed');
             }, 0);
           }
         }
